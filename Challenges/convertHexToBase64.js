@@ -45,7 +45,7 @@ var convert = function(string){
   for(var i = 0; i < base64Index.length; i++){
     base64Char += base64Array[base64Index[i]];
   }
-  console.log(binaryString)
+
   if(binaryString.length > 0){
     var temp = binaryString.join('');
     while(temp.length < 7){
@@ -61,6 +61,3 @@ var convert = function(string){
 
   return base64Char;
 };
-
-console.log(convert('49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d'));
-console.log('SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t')
