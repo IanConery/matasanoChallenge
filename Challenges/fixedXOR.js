@@ -34,6 +34,7 @@ var fixedXOR = function(buff1, buff2){
 
   for(var i = 0; i < bin1.length; i++){
     xored += bin1[i] ^ bin2[i];
+    console.log(xored);
   }
   xored = xored.split('');
   while(xored.length >= 4){
