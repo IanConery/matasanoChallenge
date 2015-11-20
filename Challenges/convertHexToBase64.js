@@ -48,12 +48,12 @@ var convert = function(string){
 
   if(binaryString.length > 0){
     var temp = binaryString.join('');
-    while(temp.length < 7){
+    while(temp.length < 8){
       temp += '0';
     }
     base64Char += base64Array[binaryToBase64(temp)];
-    if(binaryString.length === 2){
-      base64Char += '==';
+    if(binaryString.length === 4){
+      base64Char += '=';
     }else{
       base64Char += '==';
     }
@@ -61,3 +61,4 @@ var convert = function(string){
 
   return base64Char;
 };
+console.log(convert('01cd3b04'))
