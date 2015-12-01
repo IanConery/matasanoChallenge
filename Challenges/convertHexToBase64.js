@@ -30,6 +30,7 @@ var binaryToBase64 = function(array){
   return result;
 };
 
+
 var convert = function(string){
   var binaryString = '';
   var base64Index = [];
@@ -61,4 +62,4 @@ var convert = function(string){
 
   return base64Char;
 };
-console.log(convert('01cd3b04'))
+console.log(convert('1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'))
