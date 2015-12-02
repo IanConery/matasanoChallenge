@@ -70,7 +70,6 @@ var base64ToBinary = function(character){
 
 // console.log(base64ToBinary('D'));// this works correctly
 
-// var conversionForChallenge = function(){}
 
 var binaryFirstPart = '';
 for(var i = 0; i < firstPart.length; i++){
@@ -90,16 +89,31 @@ var keySizeFinder = function(lowerBound, upperBound, text){
     var first = [];
     var binFirst = text.slice(0, i * 8);
     while(binFirst.length >= 8){
-      first.push(String.fromCharCode(binFirst.splice(0,8).join(''), 2));
+      first.push(String.fromCharCode(parseInt(binFirst.splice(0,8).join(''),2)));
     }
     first = first.join('');
     var second = [];
     var binSecond = text.slice(i * 8, i * 16);
     while(binSecond.length >= 8){
-      second.push(String.fromCharCode(binSecond.splice(0,8).join(''), 2));
+      second.push(String.fromCharCode(parseInt(binSecond.splice(0,8).join(''),2)));
     }
     second = second.join('');
-    var distance = hammingDistance(first, second) / i;
+    var third = [];
+    var binThird = text.slice(i * 16, i * 24);
+    while(binThird.length >= 8){
+      third.push(String.fromCharCode(parseInt(binThird.splice(0,8).join(''),2)));
+    }
+    third = third.join('');
+    var fourth = [];
+    var binFourth = text.slice(i * 24, i * 32);
+    while(binFourth.length >= 8){
+      fourth.push(String.fromCharCode(parseInt(binFourth.splice(0,8).join(''),2)));
+    }
+    fourth = fourth.join('');
+    var distance1 = hammingDistance(first, second) / i;
+    var distance2 = hammingDistance(third, fourth) / i;
+    var distance = (distance1 + distance2) / 2;
+    console.log(distance, i)
     if(shortestDistanceAndSize[0] === -1){
       shortestDistanceAndSize = [distance, i];
     }
@@ -109,8 +123,7 @@ var keySizeFinder = function(lowerBound, upperBound, text){
   }
   return shortestDistanceAndSize;
 };
-
-console.log(keySizeFinder(2, 6, binaryFirstPart)) //this returns a distance of 5 and a key size of two
+// console.log(keySizeFinder(2, 40, binaryFirstPart)) //this returns a distance of 1.2 and a key size of 5
 
 
 var chunkText = function(binaryText, keySize){
@@ -133,3 +146,32 @@ var chunkText = function(binaryText, keySize){
 };
 
 // console.log(chunkText(binaryFirstPart, 2));
+
+var decryptRepeatingKeyXOR = function(binaryText, key){
+  var keyLength = key.length;
+  var counter = 0;
+  var binaryResult = '';
+  var decryptedResult = '';
+  while(binaryText.length >= 8){
+    if(counter === keyLength){
+      counter = 0;
+    }
+    var orig = binaryText.splice(0,8);
+    var binKey = key[counter].charCodeAt(0).toString(2).split('');
+    while(binKey.length < 8){
+      binKey.unshift('0');
+    }
+    for(var i = 0; i < 8; i++){
+      binaryResult += orig[i] ^ binKey[i];
+    }
+    counter++;
+  }
+  binaryResult = binaryResult.split('');
+  while(binaryResult.length >= 8){
+    var chunk = binaryResult.splice(0,8).join('');
+    decryptedResult += String.fromCharCode(parseInt(chunk, 2));
+  }
+  return decryptedResult;
+};
+
+console.log(decryptRepeatingKeyXOR(binaryFirstPart, 'hj'));
