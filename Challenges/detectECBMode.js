@@ -1,3 +1,4 @@
+//this will detect ecb mode from hex encoded cipher text
 var hexArray = [['8a10247f90d0a05538888ad6205882196f5f6d05c21ec8dca0cb0be02c3f8b09e382963f443aa514daa501257b09a36bf8c4c392d8ca1bf4395f0d5f2542148c7e5ff22237969874bf66cb85357ef99956accf13ba1af36ca7a91a50533c4d89b7353f908c5a166774293b0bf6247391df69c87dacc4125a99ec417221b58170e633381e3847c6b1c28dda2913c011e13fc4406f8fe73bbf78e803e1d995ce4d'],
 ['bd20aad820c9e387ea57408566e5844c1e470e9d6fbbdba3a6b4df1dd85bce2208f1944f1827d015df9c46c22803f41d1052acb721977f0ccc13db95c970252091ea5e36e423ee6a2f2d12ef909fcadd42529885d221af1225e32161b85e6dc03465cf398c937846b18bac05e88820a567caac113762753dffbe6ece09823bab5aee947a682bb3156f42df1d8dc320a897ee79981cf937390b4ae93eb8657f6c'],
 ['ed9eccbe79394ca0575a81d1fa51443aa3e83e5e3cdb7a4c5897faa6b4ac123c1dde2dff4d7c5b77d2aa3c090cebce70340e7f0e0b754ca26b9c108ca0dbfdcd8aa230eb9420654b252ffc118e830179cc12b64b2819f81edcc2543d759c422c3850051d543c9bc1dcda7c2a6c9896e1161d61c3c13c80ee79c08379abf3e189f2ecf5f997db17db69467bf6dfd485522d084d6e00a329526848bb85414a7e6a'],
@@ -202,3 +203,47 @@ var hexArray = [['8a10247f90d0a05538888ad6205882196f5f6d05c21ec8dca0cb0be02c3f8b
 ['95b3a1adbcf8d2987c2f2cba58d5f0a4ef6e0301e186b8d62a59acb6eb4be54867136f319f97470fedae743acd6bb0231ab7d60450e9856989e92c06ec014341af3e69f5e54da348868528df895b56458661d8fdebb3eb4d9aba2b854e897b7ae43cbc1c0f53c959e9ee3d2c3c0e87bed291053da3aaf181a40cc6f25c067be5bb329fdc22068ef11566a08c7918125c6eaffee31147b8004fcba000ceb9802e'],
 ['a6cadd53a2621482b7d66ecc82dc4ea6431bc0191c3801ac6b705df38c7fffe469043e5002096aca4aaca5ef033cc2c5f884d5c339d9a648ffa9400098c7851b9f5990b3771fcf55b196b7c2723085ad11268daadd411967a6a545986c93b86b7f72387bf68dc6ae8dcfd21c7f57ba70b15f3f5517c5585f345ff751c7bf21dc1a33d396ba180a2cb22998fc05ca47b5525a2c150effb15ffd681006c479f0c5'],
 ['06df04188832b10afff94209d2aa1c8a123702de28234dcd3e0a7d36c1aa8449e6fa55e3e1e3d77d8424e87a45e38697755f84c49a99473797268113eb69098888947526035b246d00a630f6201ecc4075d8aa6604de73e2119e264e4c96751f2a67a2e46cf467a0df8f0520bcf4762b2715aba266d9b3f5e8fa67d12f9caac928b07ac3be99f41120655aa77f6433fc264673a92929e792187f87b5fda50cf2']];
+
+
+var repeatingECBcount = function(hex){
+  var splitHex = [];
+  var count = 0;
+  hex = hex.split('');
+  while(hex.length >= 32){
+    splitHex.push(hex.splice(0, 32));
+  }
+  for(var i = 0; i < splitHex.length; i++){
+    var currentBlock = splitHex[i];
+    for(var k = 0; k < splitHex.length; k++){
+      if(k !== i){
+        var checkBlock = splitHex[k];
+        for(var m = 0; m < 32; m+=2){
+          if(currentBlock[m] === checkBlock[m] && currentBlock[m + 1] === checkBlock[m + 1]){
+            count++;
+          }
+        }
+      }
+    }
+  }
+  return count;
+};
+
+
+var findECB = function(array){
+  var count = -1;
+  var index = -1;
+  for(var i = 0; i < array.length; i++){
+    var tempCount = repeatingECBcount(array[i].join(''));
+    if(tempCount > count){
+      count = tempCount;
+      index = i;
+    }
+  }
+  return index;
+};
+
+
+console.log(findECB(hexArray))
+//this returns 132 as the index at which the ecb encoded file should live
+//5c4ca78f8de3527788e7d1efcd6aad0adc3878ea70993ae20937ef0a601730494946f078de2099c62de9af1c47ee4f18216ed5a7268464f210374dbf421d55449c8f399d8824c5a0ff8526a940223ee999a6f945f0ba3eaa672c434ad867ac7adaa46bd3289729c6c7d920dd0d8237bf678d88bde91e0683e72e88fef50bdb23cceb6270acba5aeebd0a834ccf99cd3e6bad8c158f5819f1f1c785fdaa3df505
+//that is the file
