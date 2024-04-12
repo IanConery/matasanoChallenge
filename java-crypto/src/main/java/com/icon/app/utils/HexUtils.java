@@ -1,9 +1,6 @@
-package manipulators;
+package com.icon.app.utils;
 
-public class HexManipulators {
-  public static void main(String[] args) {
-
-  }
+public class HexUtils {
 
   public static byte[] hexStringToBytes(String hexString) {
     if (hexString.length() % 2 == 1) {

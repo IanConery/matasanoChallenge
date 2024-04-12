@@ -1,15 +1,17 @@
-import manipulators.HexManipulators;
+import com.icon.app.utils.HexUtils;
 
+// https://cryptopals.com/sets/1/challenges/2
 // Write a function that takes two equal-length buffers and produces their XOR combination
-// given two hex encoded strings perform xor and then return hex
+// expected output: 746865206b696420646f6e277420706c6179
 
 public class ChallengeTwo {
-  public static void main(String[] args) {
-    String firstHex = "1c0111001f010100061a024b53535009181c";
-    String secondHex = "686974207468652062756c6c277320657965";
 
-    System.out.println(fixedXOR(firstHex, secondHex));
-    // outputs 746865206b696420646f6e277420706c6179
+  public static final String INPUT_1 = "1c0111001f010100061a024b53535009181c";
+  public static final String INPUT_2 = "686974207468652062756c6c277320657965";
+
+  public static void main(String[] args) {
+
+    System.out.println(fixedXOR(INPUT_1, INPUT_2));
   }
 
   public static String fixedXOR(String hex1, String hex2) {
@@ -17,8 +19,8 @@ public class ChallengeTwo {
       throw new IllegalArgumentException("Hex strings must be equal length");
     }
 
-    byte[] hex1Bytes = HexManipulators.hexStringToBytes(hex1);
-    byte[] hex2Bytes = HexManipulators.hexStringToBytes(hex2);
+    byte[] hex1Bytes = HexUtils.hexStringToBytes(hex1);
+    byte[] hex2Bytes = HexUtils.hexStringToBytes(hex2);
     byte[] xorBytes = new byte[hex1Bytes.length];
 
     for (int i = 0; i < hex1Bytes.length; i++) {
@@ -28,6 +30,6 @@ public class ChallengeTwo {
       xorBytes[i] = (byte) (hexByte1 ^ hexByte2);
     }
 
-    return HexManipulators.bytesToHexString(xorBytes);
+    return HexUtils.bytesToHexString(xorBytes);
   }
 }
