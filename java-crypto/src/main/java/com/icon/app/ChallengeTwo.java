@@ -10,8 +10,15 @@ public class ChallengeTwo {
   public static final String INPUT_2 = "686974207468652062756c6c277320657965";
 
   public static void main(String[] args) {
+    System.out.println(HexUtils.hexToAscii(INPUT_1));
+    // KSSP
+    System.out.println(HexUtils.hexToAscii(INPUT_2));
+    // hit the bull's eye
+    System.out.println(HexUtils.hexToAscii(fixedXOR(INPUT_1, INPUT_2)));
+    // the kid don't play
 
     System.out.println(fixedXOR(INPUT_1, INPUT_2));
+    // 746865206b696420646f6e277420706c6179
   }
 
   public static String fixedXOR(String hex1, String hex2) {

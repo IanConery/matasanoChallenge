@@ -12,7 +12,10 @@ public class ChallengeOne {
   public static void main(String[] args) {
     String result = hexTo64UsingBytes(HEX_STRING);
 
+    System.out.println(HexUtils.hexToAscii(HEX_STRING));
+    // I'm killing your brain like a poisonous mushroom
     System.out.println(result);
+    // SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t
   }
 
   private static String hexTo64UsingBytes(String hexString) {

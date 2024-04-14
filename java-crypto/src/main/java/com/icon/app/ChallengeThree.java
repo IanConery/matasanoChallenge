@@ -1,4 +1,7 @@
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import com.icon.app.utils.HexUtils;
 
 // https://cryptopals.com/sets/1/challenges/3
@@ -6,108 +9,89 @@ import com.icon.app.utils.HexUtils;
 // a hex string has been xor'd against one char, find it
 
 public class ChallengeThree {
-  public static final String ENCRYPTED_STRING = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+  private static final String ENCRYPTED_STRING = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
   // https://en.wikipedia.org/wiki/Etaoin_shrdlu
-  private static final String FREQ_LETTERS = "etaoinshrdlu";
+  protected static final String FREQ_LETTERS = "EeTtAaOoIiNnSsHhRrDdLlUu ";
+  protected static final Map<Character, Integer> frequencyMap = generateFreqCharMap();
+  protected static final List<Character> byteChars = generateByteChars();
 
   public static void main(String[] args) {
 
-    Map<String, String> cypherKeyAndDecryptedString = singleByteXorCypher(ENCRYPTED_STRING);
+    byte[] encryptedBytes = HexUtils.hexStringToBytes(ENCRYPTED_STRING);
+    List<String> cypherKeyAndDecryptedString = generateBestGuess(encryptedBytes);
+    String decryptedString = cypherKeyAndDecryptedString.remove(1);
+    String charUsed = cypherKeyAndDecryptedString.remove(0);
 
-    for (String key: cypherKeyAndDecryptedString.keySet()) {
-      System.out.println(key + " : " + cypherKeyAndDecryptedString.get(key));
-    }
+    System.out.println("Character Used: " + charUsed + "\nDecrypted String: " + decryptedString);
     // Output
     // Character-Used : X
     // Decrypted-String : Cooking MC's like a pound of bacon
   }
 
-  private static Map<String, String> singleByteXorCypher(String encryptedString) {
-    int largestCount = 0;
-    String largestString = "";
-    char charUsedToEncode = '_';
-    Map<String, String> solution = new HashMap<>();
-    List<Character> alphabetList = generateAlphabetChars();
-
-    for (char ch: alphabetList) {
-      String ascii = xorStringOutputAscii(ch, encryptedString);
-      int count = numberOfAlphabetChars(ascii);
-
-      if (count > largestCount) {
-        largestCount = count;
-        largestString = ascii;
-        charUsedToEncode = ch;
-      }
-    }
-
-    solution.put("Character-Used", charUsedToEncode + "");
-    solution.put("Decrypted-String", largestString);
-
-    return solution;
-  }
-
-  // created but didn't use, keeping for use later
-  private static int characterFrequencyScore(String asciiString) {
+  public static int characterFrequencyScore(String asciiString) {
     int score = 0;
-    int strLength = FREQ_LETTERS.length();
-    Map<Character, Integer> count = new HashMap<>();
-
-    for (int i = 0; i < strLength; i++) {
-      char currentChar = FREQ_LETTERS.charAt(i);
-      count.put(currentChar, 0);
-    }
+    Map<Character, Integer> count = generateFreqCharMap();
 
     for (int i = 0; i < asciiString.length(); i++) {
       char currentChar = asciiString.charAt(i);
-      count.computeIfPresent(currentChar, (k, v) -> v++);
-    }
-
-    for (char key: count.keySet()) {
-      score += count.get(key);
+      if (frequencyMap.containsKey(currentChar)) {
+        score++;
+      }
     }
 
     return score;
   }
 
-  private static int numberOfAlphabetChars(String asciiString) {
-    int count = 0;
+  public static List<String> generateBestGuess(byte[] encryptedBytes) {
+    int highScore = 0;
+    char highScoreChar = '_';
+    String highScoreString = "";
+    List<String> bestGuess = new ArrayList<>();
 
-    for (int i = 0; i < asciiString.length(); i++) {
-      char currentChar = asciiString.charAt(i);
-      boolean isAlphabetChar = Character.isLetter(currentChar);
+    for (char charToXor: byteChars) {
+      int score = 0;
+      String decrypted = "";
+      byte charByte = (byte) charToXor;
 
-      if (isAlphabetChar) {
-        count++;
+      for (int i = 0; i < encryptedBytes.length; i++) {
+        byte currentXordByte = (byte) (encryptedBytes[i] ^ charByte);
+        char decryptedChar = (char) currentXordByte;
+        decrypted += decryptedChar;
+
+        if (frequencyMap.containsKey(decryptedChar)) {
+          score++;
+        }
+
+        if (score > highScore) {
+          highScore = score;
+          highScoreChar = charToXor;
+          highScoreString = decrypted;
+        }
       }
     }
 
-    return count;
+    bestGuess.add(highScoreChar + "");
+    bestGuess.add(highScoreString);
+
+    return bestGuess;
   }
 
-  private static String xorStringOutputAscii(char keyChar, String encrypted) {
-    byte keyByte = (byte) keyChar;
-    byte[] encryptedBytes = HexUtils.hexStringToBytes(encrypted);
-    byte[] decryptedBytes = new byte[encryptedBytes.length];
-    String hexString = "";
+  private static Map<Character, Integer> generateFreqCharMap() {
+    Map<Character, Integer> output = new HashMap<>();
 
-    for (int i = 0; i < encryptedBytes.length; i++) {
-      decryptedBytes[i] = (byte) (keyByte ^ encryptedBytes[i]);
+    for (int i = 0; i < FREQ_LETTERS.length(); i++) {
+      char currentChar = FREQ_LETTERS.charAt(i);
+      output.put(currentChar, 0);
     }
 
-    hexString = HexUtils.bytesToHexString(decryptedBytes);
-
-    return HexUtils.hexToAscii(hexString);
+    return output;
   }
 
-  private static List<Character> generateAlphabetChars() {
+  private static List<Character> generateByteChars() {
     List<Character> alphabetList = new ArrayList<>();
 
-    for (char ch = 'A'; ch < 'z'; ch++) {
-      boolean isAlphabetChar = Character.isLetter(ch);
-      // there are special chars between Z and a, we don't want those
-      if (isAlphabetChar) {
-        alphabetList.add(ch);
-      }
+    for (char ch = 0; ch <= 255; ch++) {
+      alphabetList.add(ch);
     }
 
     return alphabetList;
