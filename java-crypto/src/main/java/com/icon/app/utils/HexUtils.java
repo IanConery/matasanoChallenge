@@ -49,7 +49,7 @@ public class HexUtils {
     return ascii.toString();
   }
 
-  private static String byteToHex(byte num) {
+  public static String byteToHex(byte num) {
     char[] hexDigits = new char[2];
     hexDigits[0] = Character.forDigit((num >> 4) & 0xf, 16);
     hexDigits[1] = Character.forDigit((num & 0xf), 16);
