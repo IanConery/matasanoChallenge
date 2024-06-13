@@ -1,24 +1,16 @@
-package com.icon.app.utils;
+package utils;
 
-import com.icon.app.utils.HexUtils;
 import java.util.BitSet;
 import java.lang.IllegalArgumentException;
 
 public class DecryptionUtils {
 
-  // The amount of differing bits between
-  // "this is a test"
-  // and
-  // "wokka wokka!!!"
-  // is 37
-  public static int calculateHammingDistance(String hexString1, String hexString2) {
-    if (hexString1.length() != hexString2.length()) {
+  public static int calculateHammingDistance(byte[] stringOneBytes, byte[] stringTwoBytes) {
+    if (stringOneBytes.length != stringTwoBytes.length) {
       throw new IllegalArgumentException("Strings must be of equal length");
     }
-    int differingBits = 0;
-    byte[] stringOneBytes = HexUtils.hexStringToBytes(hexString1);
-    byte[] stringTwoBytes = HexUtils.hexStringToBytes(hexString2);
 
+    int differingBits = 0;
     BitSet stringOneBits = BitSet.valueOf(stringOneBytes);
     BitSet stringTwoBits = BitSet.valueOf(stringTwoBytes);
 

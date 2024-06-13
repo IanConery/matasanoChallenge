@@ -9,8 +9,10 @@ public class ChallengeSix {
   public static void main(String[] args) {
     String stringOne = HexUtils.asciiToHex("this is a test");
     String stringTwo = HexUtils.asciiToHex("wokka wokka!!!");
+    byte[] oneBytes = HexUtils.hexStringToBytes(stringOne);
+    byte[] twoBytes = HexUtils.hexStringToBytes(stringTwo);
 
-    int test = DecryptionUtils.calculateHammingDistance(stringOne, stringTwo);
+    int test = DecryptionUtils.calculateHammingDistance(oneBytes, twoBytes);
     System.out.println(test);
     // 37
   }
