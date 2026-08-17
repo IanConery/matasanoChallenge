@@ -40,3 +40,6 @@ build/
 
 # JavaScript
 node_modules/
+
+# Misc
+STATUS.md

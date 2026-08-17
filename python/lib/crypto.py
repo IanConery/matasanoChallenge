@@ -71,6 +71,11 @@ def score_english(data: bytes) -> float:
     return score / len(data)
 
 
+def break_single_byte_xor(data: bytes) -> int:
+    """The single-byte XOR key that maximizes the English letter-frequency score."""
+    return max(range(256), key=lambda k: score_english(single_byte_xor(data, k)))
+
+
 def pkcs7_pad(data: bytes, block_size: int = 16) -> bytes:
     if not 1 <= block_size <= 255:
         raise ValueError("block_size out of range")

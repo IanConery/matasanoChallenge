@@ -1,4 +1,5 @@
-"""AES-128 ECB and hand-rolled CBC mode (per challenge 10: no library CBC)."""
+"""AES-128 ECB, hand-rolled CBC (per challenge 10: no library CBC), and
+hand-rolled CTR (challenge 18's format: 64-bit LE nonce, 64-bit LE count)."""
 
 from Crypto.Cipher import AES
 
@@ -46,5 +47,29 @@ def aes_cbc_encrypt(key: bytes, iv: bytes, data: bytes) -> bytes:
 
 
 def aes_cbc_decrypt(key: bytes, iv: bytes, data: bytes) -> bytes:
-    """CBC by hand: P_i = ECB_dec(C_i) XOR C_{i-1}, C_{-1} = IV."""
+    """CBC by hand: P_i = ECB_dec(C_i) XOR C_{i-1}, C_{i-1} = IV."""
     return _chain(False, key, iv, data)
+
+
+def _ctr_keystream(key: bytes, nonce: int, count: int, length: int) -> bytes:
+    out = b""
+    i = count
+    while len(out) < length:
+        block = nonce.to_bytes(8, "little") + i.to_bytes(8, "little")
+        out += aes_ecb_encrypt(key, block)
+        i += 1
+    return out[:length]
+
+
+def aes_ctr_encrypt(key: bytes, nonce: int, data: bytes, count: int = 0) -> bytes:
+    """CTR mode: XOR data against AES-ECB(key, LE64(nonce) || LE64(count))."""
+    if len(key) != 16:
+        raise ValueError("key must be 16 bytes")
+    if not 0 <= nonce < 2**64:
+        raise ValueError("nonce must fit in 64 bits")
+    return xor_bytes(data, _ctr_keystream(key, nonce, count, len(data)))
+
+
+def aes_ctr_decrypt(key: bytes, nonce: int, data: bytes, count: int = 0) -> bytes:
+    """CTR decryption is identical to encryption."""
+    return aes_ctr_encrypt(key, nonce, data, count)
