@@ -131,7 +131,7 @@ def build_word_constraints(plain: bytes, words: set[str]) -> list[dict[int, int]
     n = len(plain)
     constraints = [dict() for _ in range(n)]
     for w in words:
-        wl = w.lower()
+        wl = w.lower().encode()
         if len(wl) > n:
             continue
         for start in range(0, n - len(wl) + 1):
@@ -145,7 +145,7 @@ def build_word_constraints(plain: bytes, words: set[str]) -> list[dict[int, int]
                     mismatch = start + o
             if mismatches != 1:
                 continue
-            c = ord(wl[mismatch - start])
+            c = wl[mismatch - start]
             candidates = (c, c ^ 0x20) if 0x61 <= c <= 0x7A else (c,)
             for cand in candidates:
                 constraints[mismatch][cand] = constraints[mismatch].get(cand, 0) + len(wl)
@@ -168,7 +168,7 @@ def refine_keystream(ciphertexts: list[bytes], ks: bytearray, words: set[str] = 
                         score += letter_score(ct[i] ^ g)
                         score += context_score(ct, i, g, ks)
                         score += case_score(ct, i, g, ks)
-                        score += constraints[r][i].get(g, 0)
+                        score += constraints[r][i].get(ct[i] ^ g, 0)
                 if score > best_score:
                     best_g, best_score = g, score
             ks[i] = best_g

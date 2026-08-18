@@ -79,19 +79,19 @@ def main() -> None:
     print("no user input can produce ;admin=true; directly")
 
     # Bitflip attack:
-    # With a 2-byte input, block 1 is exactly PREFIX[16:] + input and block
-    # 2 is the start of SUFFIX. In CBC, P_2 = ECB_dec(C_2) XOR C_1, so
-    # overwriting C_1 with ECB_dec(C_2) XOR target makes P_2 decrypt to
-    # exactly the target block, while P_1 is scrambled (harmless).
-    target_block = b"AAAA;admin=true;"
-    assert len(PREFIX) == 32 and len(target_block) == 16
+    # We prepend 16 dummy bytes so that our payload "?admin?true" begins
+    # exactly at the boundary of block 3 (offset 48).
+    # In CBC mode, P_3 = ECB_dec(C_3) XOR C_2. By modifying C_2[0] and C_2[6],
+    # we flip '?' (0x3f) in P_3 into ';' (0x3b) and '=' (0x3d) upon decryption,
+    # without any knowledge of the secret key.
+    userdata = "A" * 16 + "?admin?true"
+    ct = bytearray(profile_for(userdata))
+    assert not profile_is_admin(bytes(ct))
 
-    ct = profile_for("AA")
-    assert not profile_is_admin(ct)
-
-    c2 = ct[32:48]
-    c1_forced = crypto.xor_bytes(aes.aes_ecb_decrypt(KEY, c2), target_block)
-    forged = ct[:16] + c1_forced + ct[32:]
+    # C_2 is at bytes 32..48; flipping bytes in C_2 alters P_3 at bytes 48..64
+    ct[32] ^= ord("?") ^ ord(";")
+    ct[32 + 6] ^= ord("?") ^ ord("=")
+    forged = bytes(ct)
 
     assert profile_is_admin(forged)
     print("forged profile is admin:", profile_is_admin(forged))
